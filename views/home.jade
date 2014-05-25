@@ -1,0 +1,84 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title NMS Tools
+    link(href='bootstrap/dist/css/bootstrap.css', rel='stylesheet')
+    link(href='stylesheets/style.css', rel='stylesheet')
+  body
+    #carousel-example-generic.carousel.slide(data-ride='carousel')
+      // Indicators
+      ol.carousel-indicators
+        li.active(data-target='#carousel-example-generic', data-slide-to='0')
+        li(data-target='#carousel-example-generic', data-slide-to='1')
+        li(data-target='#carousel-example-generic', data-slide-to='2')
+      // Wrapper for slides
+      .carousel-inner
+        .item.active
+          .myItem
+            img(src='images/gear.png')
+          .carousel-caption
+            h1 Config &#38; Audit
+            p Configure devices in bulk
+            p Audit multiple devices for configurations
+        .item
+          .myItem
+            img(src='images/ping.png')
+          .carousel-caption
+            h1 SSH &#38; Telnet
+            p Check for correct credentials on devices
+            p Check for open SSH or Telnet port on devices
+        .item
+          .myItem
+            img(src='images/snmpwalk.png', height='300')
+          .carousel-caption
+            h1 SNMP &#38; Ping
+            p Check for correct snmp credentials / community across devices
+            p SNMPwalk to multiple devices simulatneously
+            p Check for device reachability using ping on muliple devices simultaneously
+      // Controls
+      a.left.carousel-control(href='#carousel-example-generic', data-slide='prev')
+        span.glyphicon.glyphicon-chevron-left
+      a.right.carousel-control(href='#carousel-example-generic', data-slide='next')
+        span.glyphicon.glyphicon-chevron-right
+    #jumbo
+      .row
+        .col-lg-4
+          .row
+            button.btn.btn-default.center.btncolor(type='button', onclick='location.href="/t1"')
+              img(src='images/bulk.png', height='80')
+          .row
+            h3(align='center') Config &#38; Audit
+            hr
+            div
+              ul
+                li Configure devices in bulk
+                li Audit devices for compliance
+        .col-lg-4
+          .row
+            button.btn.btn-default.center.btncolor(type='button', onclick='location.href="/t2"')
+              img(src='images/telnetSSH.png', height='80')
+          .row
+            h3(align='center') SSH &#38; Telnet
+            hr
+            div
+              ul
+                li Check if SSH / Telnet port is open
+                li Check if given set of SSH / Telnet credentials combination works on the devices
+        .col-lg-4
+          .row
+            button.btn.btn-default.center.btncolor(type='button', onclick='location.href="/t3"')
+              img(src='images/walking.png', height='80')
+          .row
+            h3(align='center') SNMP &#38; PING
+            hr
+            div
+              ul
+                li SNMP walk to retrieve user provided OID from a set of devices
+                li Validate SNMP credentials against set of devices
+                li Check device reachability from user&#39;s machine or the server managing the devices
+  script(src='jquery/dist/jquery.js')
+  script(src='bootstrap/dist/js/bootstrap.js')
+  script(src='javascripts/functions.js')

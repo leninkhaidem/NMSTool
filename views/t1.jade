@@ -1,0 +1,91 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title Config &#38; Audit
+    link(href='bootstrap/dist/css/bootstrap.css', rel='stylesheet')
+    link(href='stylesheets/style.css', rel='stylesheet')
+  body.container
+    nav.navbar.navbar-inverse.navbar-fixed-top
+      a.navbar-brand(href='#') Config &#38; Audit
+      ul.nav.navbar-nav
+        li
+          a(href='/')
+            | Home
+            span.glyphicon.glyphicon-home
+    #page
+      .row.margin-buttom
+        .col-lg-5
+          .row
+            ul.nav.nav-tabs
+              li.active
+                a(href='#ips', data-toggle='tab')
+                  span#ipCount.badge.pull-right 0
+                  | IPs / Hostnames&nbsp;
+              li
+                a(href='#cli', data-toggle='tab')
+                  span#cliCount.badge.pull-right 0
+                  | Commands&nbsp;
+              li
+                a(href='#settings', data-toggle='tab') Settings
+            // Tab panes
+            .tab-content
+              #ips.tab-pane.fade.in.active
+                label.padding-top.text-danger
+                .margin-top.shadow
+                  textarea.form-control(name='ips', spellcheck='false', placeholder='IP addresses or hostnames separated by new line')
+              #cli.tab-pane.fade
+                label.padding-top.text-danger
+                .margin-top.shadow
+                  textarea.form-control(name='clis', spellcheck='false', placeholder='Commands separated by new line')
+              #settings.tab-pane.fade
+                .margin-top
+                  label.margin-buttom.control-label Device connection type:
+                  br
+                  .radio-inline.margin-buttom
+                    label
+                      input(type='radio', name='connectionMode', value='ssh', checked='checked')
+                      | SSH
+                  .radio-inline.margin-buttom
+                    label
+                      input(type='radio', name='connectionMode', value='telnet')
+                      | Telnet
+                  br
+                  label
+                    span#connectionOutput.badge.pull-right 1
+                    | Number of connections:
+                  .shadow
+                    input#connectionInput.form-control(type='range', name='connectionInput', min='1', max='30', step='1', value='1')
+                  br
+                  .checkbox
+                    label
+                      input#proxyMode(type='checkbox')
+                      | Server Proxy
+                  #proxySettings
+                    #ipValidate.form-group.margin-buttom.text
+                      label.control-label
+                      .shadow
+                        input#serverIP.form-control(type='text', name='serverIP', placeholder='Server IP / Hostname', disabled='true')
+                      span
+                    #userValidate.form-group.margin-buttom.text
+                      label.control-label
+                      .shadow
+                        input#serverUsername.form-control(type='text', name='username', placeholder='Server Username', disabled='true')
+                      span
+                    #passwordValidate.form-group.margin-buttom.text
+                      label.control-label
+                      .shadow
+                        input#serverPassword.form-control(type='password', name='password', placeholder='Server Password', disabled='true')
+                      span
+      br
+      .row
+        .col-lg-5
+          button#nextButton.btn.btn-success.center.shadow(type='button') Next
+      .row
+        label#errorMessage.padding-top.text-danger
+  script(src='jquery/dist/jquery.js')
+  script(src='bootstrap/dist/js/bootstrap.js')
+  script(src='javascripts/functions.js')
+  script(src='/socket.io/socket.io.js')
