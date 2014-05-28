@@ -9,25 +9,25 @@ html(lang='en')
     link(href='stylesheets/style.css', rel='stylesheet')
   body.container
     nav.navbar.navbar-inverse.navbar-fixed-top
-      a.navbar-brand(href='#') Config &#38; Audit
+      a.navbar-brand(href='/t1.html') Config &#38; Audit
       ul.nav.navbar-nav
         li
           a(href='/')
             | Home
             span.glyphicon.glyphicon-home
-    #page
-      .row.margin-buttom
-        .col-lg-5
+    #page1.page
+      .row.margin-bottom
+        .col-xs-5
           .row
             ul.nav.nav-tabs
               li.active
                 a(href='#ips', data-toggle='tab')
                   span#ipCount.badge.pull-right 0
-                  | IPs / Hostnames&nbsp;
+                  | IPs / Hostnames
               li
                 a(href='#cli', data-toggle='tab')
                   span#cliCount.badge.pull-right 0
-                  | Commands&nbsp;
+                  | Commands
               li
                 a(href='#settings', data-toggle='tab') Settings
             // Tab panes
@@ -42,13 +42,13 @@ html(lang='en')
                   textarea.form-control(name='clis', spellcheck='false', placeholder='Commands separated by new line')
               #settings.tab-pane.fade
                 .margin-top
-                  label.margin-buttom.control-label Device connection type:
+                  label.margin-bottom.control-label Device connection type:
                   br
-                  .radio-inline.margin-buttom
+                  .radio-inline.margin-bottom
                     label
                       input(type='radio', name='connectionMode', value='ssh', checked='checked')
                       | SSH
-                  .radio-inline.margin-buttom
+                  .radio-inline.margin-bottom
                     label
                       input(type='radio', name='connectionMode', value='telnet')
                       | Telnet
@@ -64,27 +64,53 @@ html(lang='en')
                       input#proxyMode(type='checkbox')
                       | Server Proxy
                   #proxySettings
-                    #ipValidate.form-group.margin-buttom.text
+                    #ipValidate.form-group.margin-bottom.text
                       label.control-label
                       .shadow
                         input#serverIP.form-control(type='text', name='serverIP', placeholder='Server IP / Hostname', disabled='true')
                       span
-                    #userValidate.form-group.margin-buttom.text
+                    #userValidate.form-group.margin-bottom.text
                       label.control-label
                       .shadow
                         input#serverUsername.form-control(type='text', name='username', placeholder='Server Username', disabled='true')
                       span
-                    #passwordValidate.form-group.margin-buttom.text
+                    #passwordValidate.form-group.margin-bottom.text
                       label.control-label
                       .shadow
                         input#serverPassword.form-control(type='password', name='password', placeholder='Server Password', disabled='true')
                       span
       br
       .row
-        .col-lg-5
-          button#nextButton.btn.btn-success.center.shadow(type='button') Next
+        .col-xs-5
+          button#nextButton.btn.btn-default.center.shadow(type='button') Next
       .row
         label#errorMessage.padding-top.text-danger
+    #page2.page(hidden='')
+      .row.margin-bottom
+        .margin-bottom
+          legend More Device Settings
+      #devDetails.shadow.row
+      .row.margin-top
+        .col-xs-12
+          .text-center
+            .btn-group.shadow
+              button#backButton.btn.btn-default.btn-sm(type='button')
+                b Back
+              button#startButton.btn.btn-default.btn-sm(type='button')
+                b Start
+              button#clearAllButton.btn.btn-default.btn-sm(type='button')
+                b Clear All
+    #page3.page(hidden='')
+      .row.margin-bottom
+        legend Results
+      .row
+        #loader
+          .txt
+            | Running ...
+          .spin.a
+          .spin.b
+      #result.row.margin-top
   script(src='jquery/dist/jquery.js')
   script(src='bootstrap/dist/js/bootstrap.js')
   script(src='javascripts/functions.js')
+  script(src='/socket.io/socket.io.js')
