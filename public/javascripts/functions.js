@@ -1,14 +1,16 @@
 var ip = [],
-    cli = [];
+    cli = [],
+    socket,
+    enFlag = false;
 $(document).ready(function() {
     resizeWidth($(window), 1);
-    resizeHeight("#jumbo", 0.5);
+    resizeHeight("#jumbo", 0.6);
     resizeHeight(".myItem", 0.4);
     $("#ips textarea").focus();
     $(window).resize(function(event) {
         resizeWidth($(this), 1);
         resizeHeight("#devDetails", 0.60);
-        resizeHeight("#jumbo", 0.5);
+        resizeHeight("#jumbo", 0.6);
         resizeHeight(".myItem", 0.4);
     });
     $("#connectionInput").change(function() {
@@ -17,6 +19,7 @@ $(document).ready(function() {
 
     $("#proxyMode").change(function() {
         if ($(this)[0].checked) {
+            $(this).val(1);
             $("#connectionInput").val('1');
             $("#connectionOutput").html($("#connectionInput").val());
             $("#connectionInput").attr('max', '10');
@@ -25,6 +28,7 @@ $(document).ready(function() {
             });
 
         } else {
+            $(this).val(0);
             validateProxy($("#ipValidate"));
             validateProxy($("#passwordValidate"));
             validateProxy($("#userValidate"));
@@ -51,7 +55,16 @@ $(document).ready(function() {
     $("#cli textarea").focusout(function(event) {
         validateCli($(this));
     });
-
+    $("#promptTimeout").focusout(function(event) {
+        if (!/^\d+$/.test($(this).val())) {
+            $(this).val(10);
+        }
+    });
+    $("#EnPromptTimeout").focusout(function(event) {
+        if (!/^\d+$/.test($(this).val())) {
+            $(this).val(10);
+        }
+    });
     $("#nextButton").click(function(event) {
         validateCli($("#cli textarea"));
         if ($("#proxyMode")[0].checked) {
@@ -72,6 +85,11 @@ $(document).ready(function() {
                     var flag = false;
                     var data = {};
                     $("#devDetails").find('[ipaddr]').each(function(index, el) {
+                        $(this).find('[name]').each(function(index, el) {
+                            if (/devEnPassword/.test($(this).attr('name')) && $(this).val() != "") {
+                                enFlag = true;
+                            }
+                        });
                         if (!flag) {
                             $(this).find('[name]').each(function(index, el) {
                                 data[$(this).attr('name')] = $(this).val();
@@ -80,12 +98,10 @@ $(document).ready(function() {
                         } else {
                             $(this).find('[name]').each(function(index, el) {
                                 $(this).val(data[$(this).attr('name')]);
-                                // temp += '"' + $(this).attr('name') + '":"' + $(this).val() + '",';
                             });
                         }
                     });
                 }
-
             });
             $("#masterInput").find('[name]').each(function(index, el) {
                 var param = $(this).attr('name');
@@ -116,17 +132,60 @@ $(document).ready(function() {
 
     $("#startButton").click(function(event) {
         /* Act on the event */
-        $("#page2").hide();
-        $("#page3").fadeIn(1600);
-        $("#loader").addClass('loader');
+        var data = getData();
+        if (!data) {
+            $("#errorMessage").show().html("Please enter at least a username / password / enable password");
+        } else {
+            $("#errorMessage").html("");
+            $("#devDetails").find('[ipaddr]').each(function(index, el) {
+                $(this).find('[name]').each(function(index, el) {
+                    if (/devEnPassword/.test($(this).attr('name')) && $(this).val() != "") {
+                        enFlag = true;
+                        return;
+                    }
+                });
+            });
+            $("#page2").hide();
+            $("#page3").fadeIn(1600);
+            $("#loader").addClass('loader');
+            $("#progressBar div").css('width', '0%');
+            var totalDevices = parseInt($("#totalDevices").html());
+            var socket = socketConnect();
+            socket.on('error', function() {
+                $("#loader").removeClass('loader');
+                $("#loader").addClass('hidden');
+                $("#result").html('<h3 class="text-danger"><b>Failed to open a socket connection.</b></h3>').fadeIn(1600);
+            });
+            socket.on('connect', function() {
+                $("#result").fadeIn(1600);
+            });
+            socket.emit('run', {
+                deviceDetails: getData(),
+                settings: getSettings()
+            });
+            socket.on('message', function(data) {
+                var percentageCompleted = parseInt((data.count / totalDevices) * 100) + "%";
+                $("#completed").html(data.count);
+                $("#percentageCompleted").html(percentageCompleted);
+                $("#progressBar div").css('width', percentageCompleted);
+                if (data.count == totalDevices) {
+                    $("#loader").removeClass('loader');
+                    $("#loader").addClass('hidden');
+                    $("#progressBar").removeClass("progress-striped active");
+                    $("#progressBar div").addClass("progress-bar-success");
+                    socketDisconnect(socket);
+                }
+            });
+        }
 
     });
 
     $("#backButton").click(function(event) {
-        /* Act on the event */
         $("#page2").hide();
         $("#page1").fadeIn(1600);
     });
+
+
 
 });
 
@@ -193,6 +252,7 @@ function validateIP(arg) {
         $("#ipCount").removeClass('glyphicon glyphicon-remove');
         $("#ipCount").addClass('glyphicon glyphicon-ok').html(tempIp.length);
         ip = tempIp;
+        $("#totalDevices").html(tempIp.length);
     }
 
 }
@@ -223,9 +283,9 @@ function listIps() {
     var content = "";
     for (var i = 0; i < ip.length; i++) {
         if (i == 0) {
-            content += '<div id="masterInput" class="row" ipaddr="' + ip[i] + '"><div class="col-xs-3"><b><p align="center" class="padding-top">' + ip[i] + ' :</p></b> </div><div class="col-xs-2"><div class="shadow "><input type="text" name="devUser" class="form-control" placeholder="Username"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devPassword"  class="form-control" placeholder="Password"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devEnPassword" class="form-control" placeholder="Enable Password"></div></div><div class="col-xs-3"><div class="checkbox"><p ><strong><input type="checkbox" id="applyToAll" >Apply to all devices</strong></p></div></div>';
+            content += '<div id="masterInput" class="row" ipaddr="' + ip[i] + '"><div class="col-xs-2"><b><p align="center" class="padding-top">' + ip[i] + ' :</p></b> </div><div class="col-xs-2"><div class="shadow "><input type="text" name="devUser" class="form-control" placeholder="Username"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devPassword"  class="form-control" placeholder="Password"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devEnPassword" class="form-control" placeholder="Enable Password"></div></div><div class="col-xs-4"><div class="checkbox"><p ><strong><input type="checkbox" id="applyToAll" >Apply to all devices</strong></p></div></div>';
         } else {
-            content += '<div class="row padding-bottom" ipaddr="' + ip[i] + '"><div class="col-xs-3"><b><p align="center" class="padding-top">' + ip[i] + ' :</p></b> </div><div class="col-xs-2"><div class="shadow "><input type="text" name="devUser" class="form-control" placeholder="Username"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devPassword" class="form-control" placeholder="Password"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devEnPassword" class="form-control" placeholder="Enable Password"></div></div>';
+            content += '<div class="row padding-bottom" ipaddr="' + ip[i] + '"><div class="col-xs-2"><b><p align="center" class="padding-top">' + ip[i] + ' :</p></b> </div><div class="col-xs-2"><div class="shadow "><input type="text" name="devUser" class="form-control" placeholder="Username"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devPassword" class="form-control" placeholder="Password"></div></div><div class="col-xs-2"><div class="shadow "><input type="password" name="devEnPassword" class="form-control" placeholder="Enable Password"></div></div>';
         }
 
         content += '</div>';
@@ -235,20 +295,84 @@ function listIps() {
 
 function getData() {
     // body...
-    var temp = '[';
+    var flag = true;
 
+    $("#errorMessage").html("");
+    var temp = '{';
     $("#devDetails").find('[ipaddr]').each(function(index, el) {
-
-        temp += '{' + '"ip":"' + $(this).attr('ipaddr') + '",';
+        var count = 0;
+        if (!flag) {
+            return;
+        }
+        temp += '"' + $(this).attr('ipaddr') + '":{';
         $(this).find('[name]').each(function(index, el) {
-            temp += '"' + $(this).attr('name') + '":"' + $(this).val() + '",';
+
+            if ($(this).val() == "") {
+                temp += '"' + $(this).attr('name') + '":"0",';
+                count++;
+                if (count > 2) {
+                    $("#errorMessage").html("Please enter at least a username / password / enable password");
+                    flag = false;
+                    return
+                }
+            } else {
+                temp += '"' + $(this).attr('name') + '":"' + $(this).val() + '",';
+            }
         });
         temp = temp.replace(/,$/, "");
         temp += "},";
     });
     temp = temp.replace(/,$/, "");
-    temp += "]";
-    return JSON.parse(temp);
+    temp += "}";
+    if (flag)
+        return JSON.parse(temp);
+    else
+        return false;
+}
 
+function getSettings() {
+    // body...
+    var temp = {};
+    temp['cli'] = $("#cli textarea").val();
+    temp['enMode'] = enFlag;
+    $('#settings input').each(function(index, el) {
+        if ($(this).attr('type') == "radio" && $(this)[0].checked) {
+            temp[$(this).attr('name')] = $(this).val();
+        } else if ($(this).attr('type') != "radio") {
+            if ($(this).val() == "") {
+                temp[$(this).attr('name')] = 0;
+            } else {
+                temp[$(this).attr('name')] = $(this).val();
+            }
+        }
+    });
+    return temp;
+}
 
+function socketConnect() {
+    // body...
+    return io.connect('http://192.168.56.2:3000');
+
+}
+
+function socketDisconnect(socket) {
+    // body...
+    socket.emit('destroy');
+}
+
+function getT1 () {
+    // body...
+    $.ajax({
+        url: '/t1',
+        type: 'get',
+        dataType: 'html'
+    })
+    .done(function(data) {
+        $('myBody').html(data);
+    })
+    .fail(function() {
+        alert("An error while trying to execute the operation.");
+    })
+    
+    
 }

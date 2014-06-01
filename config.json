@@ -1,0 +1,14 @@
+{
+	"proxy_server":"10.106.222.120",
+	"proxy_uid":"root",
+	"proxy_pass":"all4one",
+	"connections":7,
+	"proxy_mode":0,
+	"device_uid":"root",
+	"device_pass":"all4one",
+	"enable_mode": 0,
+	"device_en":"",
+	"prompt_timeout": 3,
+	"enable_timeout": 2,
+	"debug":0
+}

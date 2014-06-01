@@ -9,7 +9,7 @@ html(lang='en')
     link(href='stylesheets/style.css', rel='stylesheet')
   body.container
     nav.navbar.navbar-inverse.navbar-fixed-top
-      a.navbar-brand(href='/t1.html') Config &#38; Audit
+      a.navbar-brand(href='/t1') Config &#38; Audit
       ul.nav.navbar-nav
         li
           a(href='/')
@@ -17,7 +17,7 @@ html(lang='en')
             span.glyphicon.glyphicon-home
     #page1.page
       .row.margin-bottom
-        .col-xs-5
+        .col-xs-12
           .row
             ul.nav.nav-tabs
               li.active
@@ -32,59 +32,76 @@ html(lang='en')
                 a(href='#settings', data-toggle='tab') Settings
             // Tab panes
             .tab-content
-              #ips.tab-pane.fade.in.active
+              #ips.tab-pane.fade.in.active.text-center
                 label.padding-top.text-danger
-                .margin-top.shadow
-                  textarea.form-control(name='ips', spellcheck='false', placeholder='IP addresses or hostnames separated by new line')
-              #cli.tab-pane.fade
+                .margin-top.shadow.textarea
+                  .text-center
+                    textarea.form-control.center(name='ips', spellcheck='false', placeholder='IP addresses or hostnames separated by new line')
+              #cli.tab-pane.fade.text-center
                 label.padding-top.text-danger
-                .margin-top.shadow
-                  textarea.form-control(name='clis', spellcheck='false', placeholder='Commands separated by new line')
+                .margin-top.shadow.textarea
+                  textarea.form-control.center(name='clis', spellcheck='false', placeholder='Commands separated by new line')
               #settings.tab-pane.fade
-                .margin-top
-                  label.margin-bottom.control-label Device connection type:
-                  br
-                  .radio-inline.margin-bottom
-                    label
-                      input(type='radio', name='connectionMode', value='ssh', checked='checked')
-                      | SSH
-                  .radio-inline.margin-bottom
-                    label
-                      input(type='radio', name='connectionMode', value='telnet')
-                      | Telnet
+                .margin-top.text-center
+                  .wrapper
+                    label.margin-bottom.control-label.inline Device connection type:
+                    .inline
+                      .radio-inline
+                        label
+                          input(type='radio', name='connectionMode', value='ssh', checked='checked')
+                          | SSH
+                    .inline
+                      .radio-inline
+                        label
+                          input(type='radio', name='connectionMode', value='telnet')
+                          | Telnet
                   br
                   label
                     span#connectionOutput.badge.pull-right 1
                     | Number of connections:
-                  .shadow
-                    input#connectionInput.form-control(type='range', name='connectionInput', min='1', max='30', step='1', value='1')
+                  .shadow.text.center.margin-bottom
+                    input#connectionInput.form-control.margin-bottom(type='range', name='connectionInput', min='1', max='30', step='1', value='1')
                   br
-                  .checkbox
+                  .text-center
                     label
-                      input#proxyMode(type='checkbox')
-                      | Server Proxy
+                      input#proxyMode.mycheckbox(type='checkbox', name='proxyMode', value='0')
+                      span#mySpan Server Proxy
                   #proxySettings
-                    #ipValidate.form-group.margin-bottom.text
-                      label.control-label
-                      .shadow
-                        input#serverIP.form-control(type='text', name='serverIP', placeholder='Server IP / Hostname', disabled='true')
-                      span
-                    #userValidate.form-group.margin-bottom.text
-                      label.control-label
-                      .shadow
-                        input#serverUsername.form-control(type='text', name='username', placeholder='Server Username', disabled='true')
-                      span
-                    #passwordValidate.form-group.margin-bottom.text
-                      label.control-label
-                      .shadow
-                        input#serverPassword.form-control(type='password', name='password', placeholder='Server Password', disabled='true')
-                      span
+                    .text.center
+                      #ipValidate.form-group.margin-bottom
+                        label.control-label
+                        .text-center.shadow
+                          input#serverIP.form-control(type='text', name='serverIP', placeholder='Server IP / Hostname', disabled='true')
+                        span
+                    .text.center
+                      #userValidate.form-group.margin-bottom
+                        label.control-label
+                        .text-center.shadow
+                          input#serverUsername.form-control(type='text', name='serverUsername', placeholder='Server Username', disabled='true')
+                        span
+                    .text.center
+                      #passwordValidate.form-group.margin-bottom
+                        label.control-label
+                        .text-center.shadow
+                          input#serverPassword.form-control(type='password', name='serverPassword', placeholder='Server Password', disabled='true')
+                        span
+                  br
+                  .text.center.row.padding-bottom
+                    .col-xs-5
+                      .wrapper
+                        label.inline PromptTimeout (in seconds)
+                        .shadow.inline
+                          input#promptTimeout.form-control.small-text(type='text', name='promptTimeout', value='10', maxlength='3')
+                  .text.center.row.padding-bottom
+                    .col-xs-5
+                      .wrapper
+                        label.inline EnableTimeout (in seconds)
+                        .shadow.inline
+                          input#EnPromptTimeout.form-control.small-text(type='text', name='EnPromptTimeout', value='10', maxlength='3')
       br
       .row
-        .col-xs-5
-          button#nextButton.btn.btn-default.center.shadow(type='button') Next
-      .row
-        label#errorMessage.padding-top.text-danger
+        .col-xs-12
+          button#nextButton.btn.btn-sm.btn-default.center.shadow(type='button') Next
     #page2.page(hidden='')
       .row.margin-bottom
         .margin-bottom
@@ -109,8 +126,21 @@ html(lang='en')
             | Running ...
           .spin.a
           .spin.b
-      #result.row.margin-top
-  script(src='jquery/dist/jquery.js')
-  script(src='bootstrap/dist/js/bootstrap.js')
-  script(src='javascripts/functions.js')
-  script(src='/socket.io/socket.io.js')
+      .row.margin-top
+        #result.text-center(hidden='')
+          p
+            | Total Number of Devices:
+            span#totalDevices 0
+          p
+            | Completed:
+            span#completed 0
+          p
+            #progressBar.progress.progress-striped.active.shadow
+              .progress-bar
+                span#percentageCompleted 50%
+    .row
+      label#errorMessage.padding-top.text-danger
+  script(src='jquery/dist/jquery.js ')
+  script(src='bootstrap/dist/js/bootstrap.js ')
+  script(src='/socket.io/socket.io.js ')
+  script(src='javascripts/functions.js ')
