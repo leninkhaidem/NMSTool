@@ -179,7 +179,7 @@ function getSettings() {
 
 function socketConnect() {
     // body...
-    return io.connect('http://192.168.56.2:3000');
+    return io.connect('http://localhost:3000');
 
 }
 

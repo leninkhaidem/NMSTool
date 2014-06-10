@@ -2,5 +2,4 @@ bower_components/*
 node_modules/*
 public/*.html
 routes/*
-logs/*
 nodemon*
