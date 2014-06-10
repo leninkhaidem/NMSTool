@@ -1,0 +1,31 @@
+body.container
+  nav.navbar.navbar-inverse.navbar-fixed-top
+    a.navbar-brand(href="#",onclick='getT1();') Config &#38; Audit
+    ul.nav.navbar-nav
+      li
+        a(href='/')
+          | Home
+          span.glyphicon.glyphicon-home
+  #page3.page
+    .row.margin-bottom
+      legend Results
+    .row
+      #loader.loader
+        .txt
+          | Running ...
+        .spin.a
+        .spin.b
+    .row.margin-top
+      #result.text-center
+        p
+          | Total Number of Devices:
+          span#totalDevices #{total}
+        p
+          | Completed:
+          span#completed 0
+        p
+          #progressBar.progress.progress-striped.active.shadow
+            .progress-bar
+              span#percentageCompleted 0%
+  .row
+    label#errorMessage.padding-top.text-danger

@@ -1,9 +1,10 @@
 var cli = require('./sendCLI');
+var fs = require('fs');
 var prev_message;
 var completed;
 var connections;
 exports.execute = function(ips, devConfig, settings, callback) {
-    fs.write('./logs/lock.file','lock');
+    fs.writeFile('./logs/lock.file', ips.length);
     completed = 0;
     connections = settings.connectionInput;
     var debug = 0;
@@ -17,11 +18,11 @@ exports.execute = function(ips, devConfig, settings, callback) {
 
     function getCli(callback2) {
         if (ips.length == 0) {
+            cli.sendCLI('rm -rf ./logs/lock.file', function() {});
             return;
-            //cli.sendCLI('rm -rf ./logs/lock.file');
         }
         var dev_ip = ips.pop();
-        cli.sendCLI('perl ./getClis.pl ' + dev_ip + " " + settings.serverIP + " " + settings.serverUsername + " " + settings.serverPassword + " " + devConfig[dev_ip].devUser + " " + devConfig[dev_ip].devPassword + " " + devConfig[dev_ip].devEnPassword + " " + settings.promptTimeout + " " + settings.EnPromptTimeout + " " + debug + " " + settings.proxyMode + " " + settings.enMode + " " + date, function(data) {
+        cli.sendCLI('perl ./getClis.pl ' + dev_ip + " " + settings.serverIP + " " + settings.serverUsername + " " + settings.serverPassword + " " + devConfig[dev_ip].devUser + " " + devConfig[dev_ip].devPassword + " " + devConfig[dev_ip].devEnPassword + " " + settings.promptTimeout + " " + settings.EnPromptTimeout + " " + debug + " " + settings.proxyMode + " " + settings.enMode + " " + date + " " + settings.cli, function(data) {
             if (data == 'EOF') {
                 completed++;
                 callback2(completed);
@@ -29,6 +30,8 @@ exports.execute = function(ips, devConfig, settings, callback) {
                     callback(data);
                 });
             }
+            //callback2(data);
+
         });
     }
 }

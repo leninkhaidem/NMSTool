@@ -3,30 +3,7 @@ use warnings;
 use strict;
 use Expect;
 $| = 1;
-if(!-e "config.json") {
-	open FILE,">config.json";
-	print FILE<<EOF;
-{
-	"proxy_server":"Server IP",
-	"proxy_uid":"Server cli user",
-	"proxy_pass":"Server cli password",
-	"connections": number of simulatneous connections ,
-	"proxy_mode": 1 or 0,
-	"device_uid":"Devices user name",
-	"device_pass":"Devices primary password",
-	"device_en":"Devices enable password",
-	"prompt_timeout":prompt timeout,
-	"enable_timeout":enable prompt timeout,
-	"debug": 0 or 1;
-}
-EOF
-die "Configure the config file config.json";
-}
-if(!-e "clis") {
-	die "./clis not found. Please enter the device clis separated by newline in this file";
-} 
 use constant DEFAULT => "DEFAULT";
-my @clis = `cat ./clis`;
 my $deviceIP = $ARGV[0];
 my $serverIP = $ARGV[1];
 my $serverUID = $ARGV[2];
@@ -40,6 +17,7 @@ my $debug = $ARGV[9];
 my $proxymode = $ARGV[10];
 my $enableMode = $ARGV[11];
 my $log_dir = $ARGV[12];
+my @clis = `cat ./clis`;
 if($enableMode != 1){
 	$deviceEn = "";
 }
@@ -47,8 +25,8 @@ my $output = "";
 my $sessionFlag = 0;
 my $session;
 my $result;
-my $prompt = '([a-zA-z0-9\(\)\/\\-\s~@\$]+)[#][\s]?';
-my $enPrompt = '([a-zA-z0-9\(\)\/\\-\s~@\$]+)[>][\s]?';
+my $prompt = '([a-zA-z0-9\(\)\/\\-~@\$]+)[#](\s)?';
+my $enPrompt = '([a-zA-z0-9\(\)\/\\-~@\$]+)[>](\s)?';
 mkdir("logs") if(! -e "logs");
 $log_dir="logs/job_".$log_dir;
 `mkdir $log_dir`;
@@ -74,6 +52,7 @@ if($result eq "noLoginPrompt") {
 	foreach(@clis) {
 		# body...
 		chomp;
+		#print "command ".$_."\n";
 		config($prompt,$_,DEFAULT);
 	}
 	#print "$output\n";
@@ -89,7 +68,7 @@ else {
 	#print authenticationFailed $ip,"\n";
 }
 
-print "Done processing $deviceIP\n";
+#print "Done processing $deviceIP\n";
 
 sub config { 
 	# body...
@@ -127,7 +106,7 @@ sub config {
 sub SSH {
 	# body...
 	my ($ip,$user,$password,$enpassword) = @_;
-	print "Trying $ip,$user,$password\n";
+	#print "Trying $ip,$user,$password\n";
 	if(!$sessionFlag){
 		$session = Expect->new();
 		$session->log_file("$log_dir/$deviceIP");

@@ -6,15 +6,16 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var getCli = require("./getClis.js");
+var cli = require("./sendCLI.js");
 var app = express();
 var socketListener = app.listen(3000);
 var io = require("socket.io").listen(socketListener, {
     log: false
 });
 var clients = {};
-
+var fs = require('fs');
 // all environments
-
+cli.sendCLI('rm -rf ./logs/lock.file', function() {});
 //app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -35,13 +36,14 @@ app.get('/', function(req, res) {
     res.render('home');
 });
 app.get('/t1', function(req, res) {
-    fs.existSync('./logs/lock.file', function(status) {
-        if (status) {
-            res.render('wait');
-        } else {
-            res.render('t1');
-        }
-    });
+    var status = fs.existsSync('./logs/lock.file');
+    if (status) {
+        res.render('wait', {
+            total: fs.readFileSync('./logs/lock.file')
+        });
+    } else {
+        res.render('t1');
+    }
 });
 
 
@@ -52,14 +54,13 @@ http.createServer(app).listen(app.get('port'), function() {
 io.sockets.on('connection', function(socket) {
     clients[socket.id] = socket;
     socket.on('run', function(data) {
+        fs.writeFile('./clis', data.settings.cli);
         var ips = [];
-        //for (var i = 0; i < data.deviceDetails.length; i++) {
-        //  ips.push((data.deviceDetails[i].ip));
-        //};
         for (ip in data.deviceDetails) {
             ips.push(ip);
         }
         getCli.execute(ips, data.deviceDetails, data.settings, function(data) {
+            console.log(data);
             socket.emit('message', {
                 count: data
             })
